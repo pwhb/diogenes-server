@@ -4,9 +4,12 @@ import { Server } from "socket.io";
 
 const app = express();
 const httpServer = createServer(app);
+
+const { PORT, CLIENT_URL } = process.env;
+
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: CLIENT_URL,
     // origin: "https://neonaffinity.netlify.app",
   },
 });
@@ -14,7 +17,6 @@ const io = new Server(httpServer, {
 app.get("/", (req, res) => {
   res.send("welcome to diogenes backend");
 });
-const { PORT } = process.env;
 
 io.on("connection", (socket) => {
   // Generate a random username and send it to the client to display it
