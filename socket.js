@@ -1,19 +1,22 @@
+import message from "./models/message.js";
+
 export default function configureSocket(io) {
-    io.on("connection", (socket) => {
-        // Generate a random username and send it to the client to display it
-        const username = `User ${Math.round(Math.random() * 999999)}`;
-        socket.emit("name", username);
-        // socket.join("room");
+  io.on("connection", (socket) => {
+    const session = socket.request.session;
+    console.log("session", session);
 
-        socket.on("set-room", (roomName) => {
-            console.log(roomName)
-            socket.join(roomName)
-        });
-
-        // Receive incoming messages and broadcast them
-        socket.on("send-message", (newMessage) => {
-            console.log(newMessage)
-            socket.to(newMessage.room).emit("receive-message", newMessage);
-        });
+    socket.on("enter-room", ({ roomId, userId }, callback) => {
+      socket.join(roomId);
+      socket.userId = userId;
+      callback(`user ${userId} joined room ${roomId}`);
     });
+
+    socket.on("send-message", async ({ sender, body, room }, callback) => {
+      const newMessage = await message.create({ sender, body, room });
+
+      console.log("send-message", newMessage);
+      callback(newMessage);
+      socket.to(room).emit("receive-message", newMessage);
+    });
+  });
 }
