@@ -12,8 +12,8 @@ export default function configureSocket(io) {
     });
 
     socket.on("send-message", async ({ sender, body, room }, callback) => {
-      const newMessage = await message.create({ sender, body, room });
-
+      let newMessage = await message.create({ sender, body, room });
+      newMessage = await newMessage.populate("sender");
       console.log("send-message", newMessage);
       callback(newMessage);
       socket.to(room).emit("receive-message", newMessage);
