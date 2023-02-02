@@ -11,12 +11,31 @@ export default function configureSocket(io) {
       callback(`user ${userId} joined room ${roomId}`);
     });
 
-    socket.on("send-message", async ({ sender, body, room }, callback) => {
-      const created = await message.create({ sender, body, room });
-      const newMessage = await created.populate("sender");
-      console.log("send-message", newMessage);
-      callback(newMessage);
-      socket.to(room).emit("receive-message", newMessage);
-    });
+    socket.on(
+      "send-message",
+      async ({ sender, body, game, room, type = "text" }, callback) => {
+        let newMessage = await message.create({
+          sender,
+          body,
+          game,
+          room,
+          type,
+        });
+        newMessage = await newMessage.populate([
+          {
+            path: "sender",
+          },
+          {
+            path: "game",
+            populate: {
+              path: "template",
+            },
+          },
+        ]);
+        console.log("send-message", newMessage);
+        callback(newMessage);
+        socket.to(room).emit("receive-message", newMessage);
+      }
+    );
   });
 }
