@@ -15,14 +15,17 @@ export default function configureSocket(io) {
     socket.on(
       "send-message",
       async ({ sender, body, game, room, type = "text" }, callback) => {
-        game = await gameModel.findById(game).populate("template")
-        let newMessage = await message.create({
+        const payload = {
           sender,
           body,
-          game,
           room,
           type,
-        });
+        }
+        game = await gameModel.findById(game).populate("template")
+        if (game) {
+          payload.game = game
+        }
+        let newMessage = await message.create(payload);
         newMessage = await newMessage.populate(
           {
             path: "sender",
