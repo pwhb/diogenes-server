@@ -19,8 +19,8 @@ const messageSchema = new Schema(
       type: String,
     },
     game: {
-      type: Schema.Types.ObjectId,
-      ref: game.modelName,
+      type: Object,
+      // ref: game.modelName,
     },
     type: {
       type: String,
