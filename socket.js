@@ -1,5 +1,5 @@
 import message from "./models/message.js";
-import gameModel from "./models/game.js"
+import gameModel from "./models/game.js";
 
 export default function configureSocket(io) {
   io.on("connection", (socket) => {
@@ -12,6 +12,12 @@ export default function configureSocket(io) {
       callback(`user ${userId} joined room ${roomId}`);
     });
 
+    socket.on("leave-room", ({ roomId, userId }, callback) => {
+      socket.leave(roomId);
+      socket.userId = userId;
+      callback(`user ${userId} leaved room ${roomId}`);
+    });
+
     socket.on(
       "send-message",
       async ({ sender, body, game, room, type = "text" }, callback) => {
@@ -20,23 +26,15 @@ export default function configureSocket(io) {
           body,
           room,
           type,
-        }
-        game = await gameModel.findById(game).populate("template")
+        };
+        game = await gameModel.findById(game).populate("template");
         if (game) {
-          payload.game = game
+          payload.game = game;
         }
         let newMessage = await message.create(payload);
-        newMessage = await newMessage.populate(
-          {
-            path: "sender",
-          },
-          // {
-          //   path: "game",
-          //   populate: {
-          //     path: "template",
-          //   },
-          // },
-        );
+        newMessage = await newMessage.populate({
+          path: "sender",
+        });
         console.log("send-message", newMessage);
         callback(newMessage);
         socket.to(room).emit("receive-message", newMessage);
