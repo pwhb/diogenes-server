@@ -3,29 +3,30 @@ import gameModel from "./models/game.js";
 
 export default function configureSocket(io) {
   io.on("connection", (socket) => {
-    const session = socket.request.session;
-    console.log("session", session);
+    // const session = socket.request.session;
+    // console.log("session", session);
 
     socket.on("enter-room", ({ roomId, userId }, callback) => {
       socket.join(roomId);
       socket.userId = userId;
-      callback(`user ${userId} joined room ${roomId}`);
+      // callback(`user ${userId} joined room ${roomId}`);
     });
 
     socket.on("leave-room", ({ roomId, userId }, callback) => {
       socket.leave(roomId);
       socket.userId = userId;
-      callback(`user ${userId} leaved room ${roomId}`);
+      // callback(`user ${userId} left room ${roomId}`);
     });
 
     socket.on(
       "send-message",
-      async ({ sender, body, game, room, type = "text" }, callback) => {
+      async ({ sender, body, game, room, type = "text", inGame = false }, callback) => {
         const payload = {
           sender,
           body,
           room,
           type,
+          inGame
         };
         game = await gameModel.findById(game).populate("template");
         if (game) {
@@ -35,8 +36,7 @@ export default function configureSocket(io) {
         newMessage = await newMessage.populate({
           path: "sender",
         });
-        console.log("send-message", newMessage);
-        callback(newMessage);
+        callback(newMessage)
         socket.to(room).emit("receive-message", newMessage);
       }
     );

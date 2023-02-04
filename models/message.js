@@ -26,6 +26,10 @@ const messageSchema = new Schema(
       type: String,
       default: "text",
     },
+    inGame: {
+      type: Boolean,
+      default: false
+    }
   },
   { timestamps: true }
 );
