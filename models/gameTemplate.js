@@ -11,6 +11,7 @@ const gameTemplateSchema = new Schema(
     description: { type: String },
     howToPlay: { type: String },
     icon: { type: String },
+    isActive: { type: Boolean }
   },
   { timestamps: true }
 );
