@@ -30,9 +30,13 @@ export default function configureSocket(io) {
           type,
           inGame
         };
-        game = await gameModel.findById(game).populate("template");
+        game = await gameModel.findById(game).populate({
+          path: "template",
+          select: "name"
+        }).lean();
         if (game) {
           payload.game = game;
+          console.log("game", game);
         }
         let newMessage = await message.create(payload);
         newMessage = await newMessage.populate({
