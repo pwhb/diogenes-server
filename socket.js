@@ -1,5 +1,6 @@
 import message from "./models/message.js";
 import gameModel from "./models/game.js";
+import initialState from "./models/initialState.js";
 
 const games = {}
 
@@ -20,13 +21,13 @@ export default function configureSocket(io) {
       // callback(`user ${userId} left room ${roomId}`);
     });
 
-    socket.on("start-typing", ({roomId, username}, callback) => {
-      console.log("start", {roomId, username});
+    socket.on("start-typing", ({ roomId, username }, callback) => {
+      console.log("start", { roomId, username });
       socket.to(roomId).emit("on-start-typing", username);
     })
 
-    socket.on("stop-typing", ({roomId, username}, callback) => {
-      console.log("stop", {roomId, username});
+    socket.on("stop-typing", ({ roomId, username }, callback) => {
+      console.log("stop", { roomId, username });
       socket.to(roomId).emit("on-stop-typing", username);
     })
 
@@ -57,14 +58,22 @@ export default function configureSocket(io) {
       }
     );
 
-    socket.on("start-game", ({ room, state }, callback) => {
+    socket.on("start-game", async ({ room, slug }, callback) => {
+      console.log("slug", slug);
+      const { state } = await initialState.findOne({ slug }).lean()
+      console.log("state from db", state);
       if (games[room]) {
         socket.to(room).emit("update-state", games[room]);
+        console.log("old game");
+        callback(games[room])
       } else {
         games[room] = state
+        console.log("new game");
         console.log("games", games);
         socket.to(room).emit("update-state", state);
+        callback(state)
       }
+
     })
 
     socket.on("update-game", ({ room, state }, callback) => {

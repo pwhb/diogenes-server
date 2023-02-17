@@ -6,9 +6,11 @@ const { Schema, model, models } = mongoose;
 
 const initialStateSchema = new Schema(
     {
-        game: {
-            type: Schema.Types.ObjectId,
-            ref: game.modelName
+        slug: {
+            type: String
+        },
+        state: {
+            type: Object
         },
     },
     { timestamps: true, strict: false }
