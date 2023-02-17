@@ -59,20 +59,30 @@ export default function configureSocket(io) {
     );
 
     socket.on("start-game", async ({ room, slug }, callback) => {
-      console.log("slug", slug);
-      const { state } = await initialState.findOne({ slug }).lean()
-      console.log("state from db", state);
-      if (games[room]) {
-        socket.to(room).emit("update-state", games[room]);
-        console.log("old game");
-        callback(games[room])
-      } else {
-        games[room] = state
-        console.log("new game");
-        console.log("games", games);
-        socket.to(room).emit("update-state", state);
-        callback(state)
+      try {
+    
+     
+        if (games[room]) {
+          socket.to(room).emit("update-state", games[room]);
+          console.log("old game");
+          callback(games[room])
+        } else {
+          console.log("slug", slug);
+          const { state } = await initialState.findOne({ slug }).lean()
+          console.log("state from db", state);
+          if (slug === "guess-the-number") {
+            state.secretNumber = Math.floor(Math.random() * 100)
+          }
+          games[room] = state
+          console.log("new game");
+          console.log("games", games);
+          socket.to(room).emit("update-state", state);
+          callback(state)
+        }
+      } catch (e) {
+        console.error(e);
       }
+
 
     })
 
