@@ -20,6 +20,9 @@ const gameSchema = new Schema(
       },
     ],
     playerCount: { type: Number },
+    state: {
+      type: Object
+    }
   },
   { timestamps: true }
 );

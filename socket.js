@@ -1,6 +1,7 @@
 import message from "./models/message.js";
 import gameModel from "./models/game.js";
 import initialState from "./models/initialState.js";
+import game from "./models/game.js";
 
 const games = {}
 
@@ -60,25 +61,9 @@ export default function configureSocket(io) {
 
     socket.on("start-game", async ({ room, slug }, callback) => {
       try {
-    
-     
-        if (games[room]) {
-          socket.to(room).emit("update-state", games[room]);
-          console.log("old game");
-          callback(games[room])
-        } else {
-          console.log("slug", slug);
-          const { state } = await initialState.findOne({ slug }).lean()
-          console.log("state from db", state);
-          if (slug === "guess-the-number") {
-            state.secretNumber = Math.floor(Math.random() * 100)
-          }
-          games[room] = state
-          console.log("new game");
-          console.log("games", games);
-          socket.to(room).emit("update-state", state);
-          callback(state)
-        }
+        const { state } = await game.findById(room)
+        callback(state)
+        socket.to(room).emit("update-state", state);
       } catch (e) {
         console.error(e);
       }
@@ -86,10 +71,11 @@ export default function configureSocket(io) {
 
     })
 
-    socket.on("update-game", ({ room, state }, callback) => {
-      console.log("update-game", state);
-      games[room] = state
-      socket.to(room).emit("update-state", state);
+    socket.on("update-game", async ({ room, state }, callback) => {
+      const newState = await game.findByIdAndUpdate(room, { state }, { new: true })
+      // games[room] = state
+      console.log("update-game", newState);
+      socket.to(room).emit("update-state", newState.state);
     });
   });
 
