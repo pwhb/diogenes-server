@@ -2,7 +2,8 @@ import message from "./models/message.js";
 import gameModel from "./models/game.js";
 import initialState from "./models/initialState.js";
 import game from "./models/game.js";
-
+import user from "./models/user.js";
+import roomModel from "./models/room.js";
 const games = {}
 
 export default function configureSocket(io) {
@@ -54,6 +55,7 @@ export default function configureSocket(io) {
         newMessage = await newMessage.populate({
           path: "sender",
         });
+        await roomModel.findByIdAndUpdate(room, { lastMessage: { ...newMessage } })
         callback(newMessage)
         socket.to(room).emit("receive-message", newMessage);
       }
