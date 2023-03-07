@@ -55,7 +55,7 @@ export default function configureSocket(io) {
         newMessage = await newMessage.populate({
           path: "sender",
         });
-        await roomModel.findByIdAndUpdate(room, { lastMessage: { ...newMessage } })
+        await roomModel.findByIdAndUpdate(room, { lastMessage: newMessage })
         callback(newMessage)
         socket.to(room).emit("receive-message", newMessage);
       }
