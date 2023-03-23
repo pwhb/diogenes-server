@@ -23,6 +23,15 @@ export default function configureSocket(io) {
       // callback(`user ${userId} left room ${roomId}`);
     });
 
+    socket.on("update-message", async ({ messageId, seenBy }, callback) => {
+      let updatedMessage = await message.findByIdAndUpdate(messageId, { seenBy: [seenBy] }, { new: true })
+      updatedMessage = await updatedMessage.populate({
+        path: "seenBy",
+      });
+      console.log("update-message", oldmessage);
+      socket.to(roomId).emit("on-start-typing", username);
+    })
+
     socket.on("start-typing", ({ roomId, username }, callback) => {
       console.log("start", { roomId, username });
       socket.to(roomId).emit("on-start-typing", username);

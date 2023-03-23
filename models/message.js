@@ -29,7 +29,12 @@ const messageSchema = new Schema(
     inGame: {
       type: Boolean,
       default: false
-    }
+    },
+    seenBy: {
+			type: [Schema.Types.ObjectId],
+			default: [],
+      ref: user.modelName
+		}
   },
   { timestamps: true }
 );
