@@ -13,8 +13,7 @@ export default function configureSocket(io: Server)
 {
     io.on(SocketEvents.Connection, (socket: ISocket) =>
     {
-        // const session = socket.request.session;
-        // console.log("session", session);
+        console.log("socket connected", socket.id);
 
         socket.on(SocketEvents.EnterRoom, ({ roomId, userId }, _callback) =>
         {
@@ -34,13 +33,13 @@ export default function configureSocket(io: Server)
         socket.on(SocketEvents.StartTyping, ({ roomId, username }, _callback) =>
         {
             console.log("start", { roomId, username });
-            socket.to(roomId).emit("on-start-typing", username);
+            socket.to(roomId).emit(SocketEvents.OnStartTyping, username);
         });
 
         socket.on(SocketEvents.StopTyping, ({ roomId, username }, _callback) =>
         {
             console.log("stop", { roomId, username });
-            socket.to(roomId).emit("on-stop-typing", username);
+            socket.to(roomId).emit(SocketEvents.OnStopTyping, username);
         });
     });
 
