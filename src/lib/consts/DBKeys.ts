@@ -1,6 +1,5 @@
 enum DBKeys
 {
-    DbName = "test",
     ConfigCollection = "configs"
 }
 

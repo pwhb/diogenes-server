@@ -7,7 +7,7 @@ export async function indexController(req: Request, res: Response)
     try
     {
         const client = await clientPromise;
-        const col = client.db(DBKeys.DbName).collection(DBKeys.ConfigCollection);
+        const col = client.db(process.env.DB_NAME).collection(DBKeys.ConfigCollection);
         const doc = (await col.findOne({ name: "backend-configs" })) as any;
         return res.status(200).json(doc.responses.root);
     } catch (err)
